@@ -7,24 +7,64 @@ description: Tailor a resume to a specific job description, producing a polished
 
 This skill produces tailored resumes against specific job descriptions. It encodes the workflow, formatting, and ATS strategy for producing clean, honest, professionally formatted resumes.
 
-## Requirements
+## Session setup (run automatically on every first use)
 
-Before doing any work, verify the environment has what this skill needs:
+Run this block at the start of each session before any other work. Do not ask the user to do any of this manually.
 
-| Dependency | Minimum version | Used for |
+**Step 1 — Locate the skill directory**
+
+```bash
+SKILL_DIR=$(find /mnt/skills -name "SKILL.md" -path "*/resume-tailor/*" -exec dirname {} \; 2>/dev/null | head -1)
+echo "Skill dir: $SKILL_DIR"
+```
+
+**Step 2 — Check Node.js**
+
+```bash
+node --version 2>/dev/null || echo "MISSING"
+```
+
+If Node.js is not found: stop and tell the user — "This skill requires Node.js (≥18) to build resumes, but it's not available in this environment. Please ensure Node.js is installed and try again." Do not proceed.
+
+**Step 3 — Install the pinned npm dependency**
+
+```bash
+mkdir -p /home/claude/resume
+cp "$SKILL_DIR/package.json" /home/claude/resume/
+cd /home/claude/resume && npm install --silent
+```
+
+This installs `docx ^9.0.0` locally. No global installs, no version drift. If `npm install` fails, report the error and stop.
+
+**Step 4 — Check optional system tools and set output mode**
+
+```bash
+soffice --version 2>/dev/null && echo "soffice:ok" || echo "soffice:missing"
+pdftoppm -v 2>&1 | head -1 && echo "pdftoppm:ok" || echo "pdftoppm:missing"
+pdftotext -v 2>&1 | head -1 && echo "pdftotext:ok" || echo "pdftotext:missing"
+```
+
+Set the session output mode based on results:
+
+| soffice | pdftoppm | Output mode |
 |---|---|---|
-| Node.js | 18.0.0 | Running the DOCX builder |
-| docx (npm) | 9.0.0 | DOCX generation — installed locally via `package.json` |
-| LibreOffice (`soffice`) | any recent | Converting DOCX to PDF |
-| poppler (`pdftoppm`, `pdftotext`) | any recent | Preview images and ATS text extraction |
+| ✓ | ✓ | Full — DOCX + PDF with visual preview and ATS verification |
+| ✓ | ✗ | DOCX + PDF, no visual preview; describe layout changes in text |
+| ✗ | any | DOCX only — tell the user PDF conversion is unavailable and they can convert the DOCX manually |
 
-Run the preflight check in `assets/build_helpers.md` to verify all four are present. If anything is missing, tell the user which dependency is absent and what it's needed for before proceeding.
+**Step 5 — Check for candidate context**
+
+```bash
+ls "$SKILL_DIR/references/candidate-context.md" 2>/dev/null && echo "context:ok" || echo "context:missing"
+```
+
+If missing: ask the user to describe their work history and the roles they've held before proceeding. Capture this in the session as a substitute for the context file.
+
+**Step 6 — Report and proceed**
+
+Tell the user the output mode in one line (e.g., "Ready — full PDF output available" or "Ready — DOCX only, no LibreOffice in this environment") and ask for the job description.
 
 ---
-
-**Before anything else: read `references/candidate-context.md`** to understand the candidate's actual experience and defensible claims. If this file doesn't exist yet, direct the user to copy `references/candidate-context-template.md`, fill it in, and save it locally as `candidate-context.md`.
-
-The baseline resume builder lives at `assets/baseline_resume_template.js` — copy it to a working directory and fill in the candidate's content before building anything.
 
 ## The non-negotiable first step: honest fit assessment
 
@@ -39,11 +79,11 @@ Then ask how the candidate wants to position before drafting. Don't draft until 
 ## Core workflow
 
 1. **Read the JD** completely. Identify exact phrases the JD repeats. These are the words to weave naturally — not stuff.
-2. **Read `references/candidate-context.md`** to understand what the candidate can actually defend in interview.
+2. **Read `references/candidate-context.md`** (or session-captured context) to understand what the candidate can actually defend in interview.
 3. **Honest fit assessment** (see above). Get the candidate's positioning decision.
-4. **Copy `assets/baseline_resume_template.js`** to a working file, fill in the candidate's content, then iterate per `references/workflow.md`.
+4. **Copy `assets/baseline_resume_template.js`** to `/home/claude/resume/build_resume.js`, fill in the candidate's content, then iterate per `references/workflow.md`.
 5. **Build → preview → trim → rebuild** until it fits cleanly on 2 pages.
-6. **Generate both DOCX and PDF**, present both.
+6. **Generate outputs** per the session output mode established in setup.
 7. **Surface ATS considerations** per `references/ats.md`.
 
 ## Iteration patterns
@@ -57,16 +97,17 @@ Then ask how the candidate wants to position before drafting. Don't draft until 
 
 ## File outputs
 
-Always produce both formats:
-- `<CandidateName>-Resume-<Company>-<Role>.docx`
-- `<CandidateName>-Resume-<Company>-<Role>.pdf`
+Per the output mode set during setup:
+- **Full mode:** `<CandidateName>-Resume-<Company>-<Role>.docx` + `.pdf`
+- **DOCX-only mode:** `<CandidateName>-Resume-<Company>-<Role>.docx` only; tell the user to convert to PDF themselves
 
-Save to `/mnt/user-data/outputs/` and present via `present_files`. PDF first (default submission preference unless candidate specifies otherwise).
+Save to `/mnt/user-data/outputs/` and present via `present_files`. PDF first when available.
 
 ## Where things live
 
-- `assets/baseline_resume_template.js` — Node.js resume builder template. **Copy to a working location, rename, and fill in the candidate's content. Never edit the template in place.**
-- `assets/build_helpers.md` — How to run the builder, validate, preview, generate PDF
+- `assets/baseline_resume_template.js` — Node.js resume builder template. Copy to `/home/claude/resume/build_resume.js` and fill in the candidate's content. Never edit the template in place.
+- `assets/build_helpers.md` — Build commands, trim priorities, delivery steps
+- `package.json` — Pins `docx ^9.0.0`; copied to working dir and installed during session setup
 - `references/workflow.md` — Detailed iteration loop, bullet patterns, gap-handling
 - `references/ats.md` — ATS/PDF strategy and formatting tradeoffs
 - `references/jd-mapping.md` — How to read a JD and identify what to surface

@@ -36,11 +36,9 @@ This skill activates automatically when you provide a job description and want a
 
 ### Setup
 
-Skills are installed in Claude Desktop as `.skill` files (a zip of the skill directory). Build one from this repo, then import it via the Claude Desktop UI.
+**Step 1 — Fill in your personal files (optional but recommended)**
 
-**Step 1 — Fill in your personal files (recommended before packaging)**
-
-These files stay local and are never committed. Fill them in once, then every tailoring session has access to your baseline.
+These files stay local and are never committed. Filling them in before packaging means Claude has your context from the first session rather than asking for it.
 
 ```bash
 # Your defensible work history — what you can back up in an interview
@@ -54,34 +52,19 @@ cp resume-tailor/assets/baseline_resume_template.js \
 # Edit baseline_resume.js with your actual resume content
 ```
 
-System dependencies (needed at runtime inside Claude Desktop's agent environment):
-
-| Dependency | Min version | Notes |
-|---|---|---|
-| Node.js | 18.0.0 | |
-| docx (npm) | 9.0.0 | Installed locally via `package.json` — no global install needed |
-| LibreOffice | any recent | Required for PDF conversion |
-| poppler | any recent | Required for preview images and ATS text verification |
-
-The `docx` version is pinned in `resume-tailor/package.json`. When Claude runs `npm install` in the working directory it gets exactly `^9.0.0` — no manual version management needed.
-
-**Step 2 — Package the skill**
+**Step 2 — Package and install**
 
 ```bash
-# With your personal files included (for your own installation only — do not share)
+# With your personal files (for your own use — do not share this package)
 ./scripts/package.sh resume-tailor --personal
 
 # Without personal files (safe to share publicly)
 ./scripts/package.sh resume-tailor
 ```
 
-This produces `resume-tailor.skill` in the repo root.
+Open Claude Desktop → Skills → import the generated `resume-tailor.skill`.
 
-**Step 3 — Install in Claude Desktop**
-
-Open Claude Desktop → navigate to the Skills section → import `resume-tailor.skill`.
-
-> If you skipped Step 1, the skill will still work — it will ask for your context during the first session instead of reading it from file.
+> **Claude handles the rest.** On first use, the skill automatically installs its npm dependency (`docx ^9.0.0`), detects whether LibreOffice and PDF tools are available, and tells you if anything is missing. No manual dependency setup required.
 
 ### Usage
 
@@ -107,7 +90,7 @@ To iterate: "tighten the summary", "drop the oldest role", "add more cloud empha
 
 ### Commands this skill runs
 
-`node`, `npm install -g docx`, `soffice --headless --convert-to pdf`, `pdftoppm`, `pdftotext` — all local, no network after the one-time npm install. See `assets/build_helpers.md` for details.
+`node`, `npm install` (local, pins `docx ^9.0.0`), `soffice --headless --convert-to pdf`, `pdftoppm`, `pdftotext` — all local. The only network call is the one-time `npm install` to the npm registry. LibreOffice and PDF tools are used if available; the skill degrades gracefully to DOCX-only if they're not. See `assets/build_helpers.md` for details.
 
 ---
 
