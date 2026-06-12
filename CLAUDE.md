@@ -10,8 +10,8 @@ This repo stores and shares reusable Claude Code skills. Skills encode proven wo
 
 **Every commit that changes a skill must include a documentation update.**
 
-- Adding a new skill → update the skill catalog table in `README.md`
-- Changing a skill's behavior, trigger, or workflow → update the relevant `SKILL.md` or reference doc in the same commit
+- Adding a new skill → `README.md` is required; see [Adding a new skill](#adding-a-new-skill) for the required content
+- Changing a skill's behavior, trigger, or workflow → update the relevant `SKILL.md` or reference doc in the same commit, and update `README.md` if the change affects installation, usage, or setup
 - Changing project-level conventions → update this file (`CLAUDE.md`)
 
 The pre-commit hook in `.githooks/pre-commit` enforces this. Set it up once:
@@ -58,7 +58,20 @@ Do not rename these files to something that bypasses `.gitignore`.
 2. Add supporting references in `<skill-name>/references/`.
 3. Add asset templates (if any) in `<skill-name>/assets/`.
 4. Ensure any personal-context files are covered by `.gitignore`.
-5. Add the skill to the catalog table in `README.md` in the same commit.
+5. **Update `README.md` in the same commit.** The pre-commit hook requires `README.md` to be staged and to contain a `## <skill-name>` section. That section must include all of the following:
+
+   | Required element | What to write |
+   |---|---|
+   | `## <skill-name>` heading | Matches the directory name exactly (lowercase, hyphenated) |
+   | Description paragraph | What the skill does in 2-4 sentences |
+   | **Trigger** subsection | The exact conditions or phrases that activate the skill |
+   | **Setup** subsection | Step-by-step install instructions for this specific skill |
+   | **Usage** subsection | What to say/do to invoke it; what Claude will do in return |
+   | **Key files** table | Each file, one line description of its purpose |
+   | **Commands this skill runs** | Every shell command the skill executes, with network-access note |
+
+   Also add a row to the catalog table at the top of `README.md`.
+
 6. Run the security checklist above before committing.
 
 ## Commit style
