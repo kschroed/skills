@@ -47,8 +47,9 @@ if [ -n "$NEW_SKILLS" ]; then
   done <<< "$NEW_SKILLS"
 fi
 
-# ── Rule 2: changes to existing skill files ───────────────────────────────────
+# ── Rule 2: changes to existing skill or scripts files ───────────────────────
 CHANGED_SKILLS=$(git diff --cached --name-only --diff-filter=M | grep -v "references/candidate-context" | grep -E "^[^/]+/")
+CHANGED_SCRIPTS=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^scripts/")
 
 if [ -n "$CHANGED_SKILLS" ] && [ -z "$DOCS_STAGED" ]; then
   echo ""
@@ -56,6 +57,18 @@ if [ -n "$CHANGED_SKILLS" ] && [ -z "$DOCS_STAGED" ]; then
   echo ""
   echo "  Modified skill files:"
   echo "$CHANGED_SKILLS" | sed 's/^/    /'
+  echo ""
+  echo "  Please update README.md or CLAUDE.md to reflect these changes."
+  echo ""
+  exit 1
+fi
+
+if [ -n "$CHANGED_SCRIPTS" ] && [ -z "$DOCS_STAGED" ]; then
+  echo ""
+  echo "  pre-commit: scripts/ changed without a documentation update."
+  echo ""
+  echo "  Changed scripts:"
+  echo "$CHANGED_SCRIPTS" | sed 's/^/    /'
   echo ""
   echo "  Please update README.md or CLAUDE.md to reflect these changes."
   echo ""

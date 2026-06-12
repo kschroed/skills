@@ -1,10 +1,10 @@
 # skills
 
-A curated collection of Claude Code skills — reusable agent behaviors that encode proven workflows, methodologies, and automation patterns.
+A curated collection of Claude Desktop skills — reusable agent behaviors that encode proven workflows, methodologies, and automation patterns.
 
 ## What are skills?
 
-Skills are instruction sets that teach Claude how to perform a complex, repeatable task with consistency. Each skill lives in its own directory with a `SKILL.md` file plus supporting reference documents and asset templates. Install a skill once; Claude applies the methodology automatically when the trigger conditions are met.
+Skills are instruction sets that teach Claude how to perform a complex, repeatable task with consistency. Each skill lives in its own directory with a `SKILL.md` file plus supporting reference documents and asset templates. Package a skill as a `.skill` file, install it in Claude Desktop, and Claude applies the methodology automatically when the trigger conditions are met.
 
 ## Skill catalog
 

@@ -81,11 +81,3 @@ Degree, Major — University Name
 - [Language Y] — limited exposure, not production-level
 - [Certification Z] — expired or not yet obtained
 
----
-
-## Contact Info
-
-- Email:
-- Phone:
-- Location:
-- LinkedIn:

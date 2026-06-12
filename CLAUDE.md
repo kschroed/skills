@@ -4,7 +4,7 @@ This file governs how work is done in this repository.
 
 ## Intent
 
-This repo stores and shares reusable Claude Code skills. Skills encode proven workflows as generic, installable instruction sets. The target audience is any Claude Code user — skills must be useful to strangers, not just the author.
+This repo stores and shares reusable Claude Desktop skills. Skills encode proven workflows as generic, installable instruction sets. The target audience is any Claude Desktop user — skills must be useful to strangers, not just the author.
 
 ## Documentation-first policy
 

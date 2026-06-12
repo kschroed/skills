@@ -26,14 +26,14 @@ Then ask how the candidate wants to position before drafting. Don't draft until 
 1. **Read the JD** completely. Identify exact phrases the JD repeats. These are the words to weave naturally — not stuff.
 2. **Read `references/candidate-context.md`** to understand what the candidate can actually defend in interview.
 3. **Honest fit assessment** (see above). Get the candidate's positioning decision.
-4. **Copy `assets/baseline_resume.js`** to a working file, fill in the candidate's content, then iterate per `references/workflow.md`.
+4. **Copy `assets/baseline_resume_template.js`** to a working file, fill in the candidate's content, then iterate per `references/workflow.md`.
 5. **Build → preview → trim → rebuild** until it fits cleanly on 2 pages.
 6. **Generate both DOCX and PDF**, present both.
 7. **Surface ATS considerations** per `references/ats.md`.
 
 ## Iteration patterns
 
-- **Ask before assuming.** When uncertain about how deep the candidate's experience goes on a specific tech, ask via `ask_user_input_v0` with concrete options. Don't fabricate depth.
+- **Ask before assuming.** When uncertain about how deep the candidate's experience goes on a specific tech, ask with concrete options (e.g., "Was your Kubernetes work managing clusters, or writing workloads on top of managed K8s?"). Don't fabricate depth.
 - **Defend every claim.** Senior-level roles require that every bullet survive a "tell me more about that" follow-up. If it can't, cut or soften it.
 - **Honest framing, not bluffing.** Specific honest framing in an interview ("I worked at the Transit Gateway / Direct Connect layer, not service-provider BGP") builds more trust at senior levels than vague keyword claims.
 - **Bullets follow this shape:** `**Bold action lead-in** — context, technical specifics, quantified outcome.` Verbs: *Architected, Built, Led, Drove, Authored, Designed, Cut, Delivered*.
