@@ -54,11 +54,16 @@ cp resume-tailor/assets/baseline_resume_template.js \
 # Edit baseline_resume.js with your actual resume content
 ```
 
-Build dependencies (one-time, needed at runtime inside Claude Desktop's agent environment):
-```bash
-npm install -g docx
-# LibreOffice (soffice) and poppler (pdftotext, pdftoppm) are also required
-```
+System dependencies (needed at runtime inside Claude Desktop's agent environment):
+
+| Dependency | Min version | Notes |
+|---|---|---|
+| Node.js | 18.0.0 | |
+| docx (npm) | 9.0.0 | Installed locally via `package.json` — no global install needed |
+| LibreOffice | any recent | Required for PDF conversion |
+| poppler | any recent | Required for preview images and ATS text verification |
+
+The `docx` version is pinned in `resume-tailor/package.json`. When Claude runs `npm install` in the working directory it gets exactly `^9.0.0` — no manual version management needed.
 
 **Step 2 — Package the skill**
 

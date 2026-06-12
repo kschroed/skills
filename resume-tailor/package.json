@@ -1,0 +1,11 @@
+{
+  "name": "resume-tailor",
+  "description": "Build dependencies for the resume-tailor skill",
+  "private": true,
+  "dependencies": {
+    "docx": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

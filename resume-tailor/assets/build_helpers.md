@@ -1,36 +1,50 @@
 # Build Pipeline
 
+## Preflight check
+
+Run this before starting any build. If anything is missing, stop and resolve it first.
+
+```bash
+echo "=== Environment Check ==="
+node --version 2>/dev/null   && echo "✓ Node.js" || echo "✗ Node.js not found — required for the DOCX builder"
+soffice --version 2>/dev/null | head -1 && echo "✓ LibreOffice" || echo "✗ LibreOffice (soffice) not found — PDF conversion will fail"
+pdftoppm -v 2>&1 | head -1   && echo "✓ pdftoppm"  || echo "✗ pdftoppm not found — preview rendering will fail"
+pdftotext -v 2>&1 | head -1  && echo "✓ pdftotext" || echo "✗ pdftotext not found — ATS verification will fail"
+echo "========================="
+```
+
+Node.js ≥ 18 is required. LibreOffice and poppler (`pdftoppm`, `pdftotext`) are system packages; if missing in the Claude Desktop environment they will need to be installed by the user before this skill can produce PDFs.
+
 ## Setup
 
-The `docx` npm package is needed. Check first:
+Working directory: `/home/claude/resume/` (create if needed). **Never edit `assets/baseline_resume_template.js` in place** — always copy to a working location first.
 
 ```bash
-npm list -g docx 2>/dev/null
-```
-
-If missing, install:
-```bash
-npm install -g docx
-```
-
-## Standard build → preview cycle
-
-Working directory: `/home/claude/resume/` (create if needed). **Never edit `assets/baseline_resume.js` in place** — always copy to a working location first.
-
-```bash
-# 1. Copy the template to a working file and fill in your content
+# 1. Create working directory and copy the template
 mkdir -p /home/claude/resume
 cp /mnt/skills/<skill-path>/resume-tailor/assets/baseline_resume_template.js /home/claude/resume/build_resume.js
-# Now edit build_resume.js with the candidate's actual content
 
-# 2. Build the DOCX
+# 2. Install pinned npm dependencies into the working directory
+cp /mnt/skills/<skill-path>/resume-tailor/package.json /home/claude/resume/
 cd /home/claude/resume
-NODE_PATH=$(npm root -g) node build_resume.js
+npm install
+# This installs docx ^9.0.0 locally — no global install needed or used
+```
 
-# 3. Convert to PDF (requires LibreOffice)
+Now edit `build_resume.js` with the candidate's actual content.
+
+## Build → preview cycle
+
+```bash
+cd /home/claude/resume
+
+# 3. Build the DOCX (uses local node_modules — no NODE_PATH needed)
+node build_resume.js
+
+# 4. Convert to PDF
 soffice --headless --convert-to pdf <Candidate>-Resume-<Company>-<Role>.docx
 
-# 4. Render preview images for visual review
+# 5. Render preview images for visual review
 rm -f preview-*.jpg
 pdftoppm -jpeg -r 110 <Candidate>-Resume-<Company>-<Role>.pdf preview
 ls preview-*.jpg
@@ -46,7 +60,7 @@ View each preview JPG to confirm the layout fits on 2 pages. If 3 pages appear, 
 4. **Bullet line trims** — remove parenthetical asides.
 5. **Last resort**: drop one of the weakest certifications.
 
-Never trim by reducing the active-role bullets (current role, recent key role) — those carry the JD signal.
+Never trim the active-role bullets (current role, most recent key role) — those carry the JD signal.
 
 ## Validation
 
@@ -64,14 +78,14 @@ cp /home/claude/resume/<Candidate>-Resume-<Company>-<Role>.docx /mnt/user-data/o
 cp /home/claude/resume/<Candidate>-Resume-<Company>-<Role>.pdf /mnt/user-data/outputs/
 ```
 
-Present with `present_files` — PDF first (default submission preference), DOCX second.
+Present with `present_files` — PDF first, DOCX second.
 
 ## Commands used by this skill
 
-| Command | Purpose | Network access |
-|---|---|---|
-| `node build_resume.js` | Builds DOCX from the JS builder | None — local only |
-| `npm install -g docx` | Installs docx npm package | npm registry only |
-| `soffice --headless --convert-to pdf` | Converts DOCX to PDF via LibreOffice | None |
-| `pdftoppm` | Renders PDF pages as JPG for preview | None |
-| `pdftotext` | Extracts text from PDF for ATS verification | None |
+| Command | Version requirement | Purpose | Network access |
+|---|---|---|---|
+| `node` | ≥ 18.0.0 | Runs the DOCX builder | None |
+| `npm install` | any | Installs `docx ^9.0.0` locally | npm registry (one-time) |
+| `soffice --headless` | any recent | Converts DOCX to PDF via LibreOffice | None |
+| `pdftoppm` | any recent | Renders PDF pages as JPG for preview | None |
+| `pdftotext` | any recent | Extracts text for ATS verification | None |

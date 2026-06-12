@@ -7,6 +7,21 @@ description: Tailor a resume to a specific job description, producing a polished
 
 This skill produces tailored resumes against specific job descriptions. It encodes the workflow, formatting, and ATS strategy for producing clean, honest, professionally formatted resumes.
 
+## Requirements
+
+Before doing any work, verify the environment has what this skill needs:
+
+| Dependency | Minimum version | Used for |
+|---|---|---|
+| Node.js | 18.0.0 | Running the DOCX builder |
+| docx (npm) | 9.0.0 | DOCX generation — installed locally via `package.json` |
+| LibreOffice (`soffice`) | any recent | Converting DOCX to PDF |
+| poppler (`pdftoppm`, `pdftotext`) | any recent | Preview images and ATS text extraction |
+
+Run the preflight check in `assets/build_helpers.md` to verify all four are present. If anything is missing, tell the user which dependency is absent and what it's needed for before proceeding.
+
+---
+
 **Before anything else: read `references/candidate-context.md`** to understand the candidate's actual experience and defensible claims. If this file doesn't exist yet, direct the user to copy `references/candidate-context-template.md`, fill it in, and save it locally as `candidate-context.md`.
 
 The baseline resume builder lives at `assets/baseline_resume_template.js` — copy it to a working directory and fill in the candidate's content before building anything.
