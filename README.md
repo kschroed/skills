@@ -36,31 +36,47 @@ This skill activates automatically when you provide a job description and want a
 
 ### Setup
 
-1. Copy the skill to your Claude skills folder:
-   ```bash
-   cp -r resume-tailor ~/.claude/skills/
-   ```
+Skills are installed in Claude Desktop as `.skill` files (a zip of the skill directory). Build one from this repo, then import it via the Claude Desktop UI.
 
-2. Fill in your personal context file (stays local — never committed):
-   ```bash
-   cp ~/.claude/skills/resume-tailor/references/candidate-context-template.md \
-      ~/.claude/skills/resume-tailor/references/candidate-context.md
-   # Edit candidate-context.md with your actual work history and defensible claims
-   ```
+**Step 1 — Fill in your personal files (recommended before packaging)**
 
-3. Copy the resume builder template and fill it in with your content:
-   ```bash
-   cp ~/.claude/skills/resume-tailor/assets/baseline_resume_template.js \
-      ~/.claude/skills/resume-tailor/assets/baseline_resume.js
-   # Edit baseline_resume.js with your actual resume content
-   ```
-   > Both `candidate-context.md` and `baseline_resume.js` are gitignored — they won't be committed if you fork this repo.
+These files stay local and are never committed. Fill them in once, then every tailoring session has access to your baseline.
 
-4. Ensure build dependencies are available (one-time):
-   ```bash
-   npm install -g docx
-   # LibreOffice (soffice) and poppler (pdftotext, pdftoppm) are also required for PDF steps
-   ```
+```bash
+# Your defensible work history — what you can back up in an interview
+cp resume-tailor/references/candidate-context-template.md \
+   resume-tailor/references/candidate-context.md
+# Edit candidate-context.md with your actual experience
+
+# Your baseline resume as a Node.js builder
+cp resume-tailor/assets/baseline_resume_template.js \
+   resume-tailor/assets/baseline_resume.js
+# Edit baseline_resume.js with your actual resume content
+```
+
+Build dependencies (one-time, needed at runtime inside Claude Desktop's agent environment):
+```bash
+npm install -g docx
+# LibreOffice (soffice) and poppler (pdftotext, pdftoppm) are also required
+```
+
+**Step 2 — Package the skill**
+
+```bash
+# With your personal files included (for your own installation only — do not share)
+./scripts/package.sh resume-tailor --personal
+
+# Without personal files (safe to share publicly)
+./scripts/package.sh resume-tailor
+```
+
+This produces `resume-tailor.skill` in the repo root.
+
+**Step 3 — Install in Claude Desktop**
+
+Open Claude Desktop → navigate to the Skills section → import `resume-tailor.skill`.
+
+> If you skipped Step 1, the skill will still work — it will ask for your context during the first session instead of reading it from file.
 
 ### Usage
 
@@ -92,13 +108,14 @@ To iterate: "tighten the summary", "drop the oldest role", "add more cloud empha
 
 ## Installation
 
-### Install all skills
+Skills are distributed as `.skill` files and installed via the Claude Desktop UI. Each skill's **Setup** section above covers the full install flow for that skill.
 
+To build all skills at once:
 ```bash
-cp -r . ~/.claude/skills/
+for skill in */SKILL.md; do
+  ./scripts/package.sh "$(dirname "$skill")"
+done
 ```
-
-Then follow each skill's **Setup** section above.
 
 ## Security
 

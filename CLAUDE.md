@@ -73,6 +73,12 @@ Do not rename these files to something that bypasses `.gitignore`.
    Also add a row to the catalog table at the top of `README.md`.
 
 6. Run the security checklist above before committing.
+7. After committing, build and smoke-test the `.skill` package:
+   ```bash
+   ./scripts/package.sh <skill-name>
+   # Install the generated .skill in Claude Desktop and verify the skill loads correctly
+   ```
+   The `.skill` file is gitignored — do not commit it.
 
 ## Commit style
 
