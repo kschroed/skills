@@ -1,0 +1,37 @@
+#!/bin/bash
+# Enforce the documentation-first policy:
+# Any commit that changes skill files must also update README.md or CLAUDE.md.
+
+CHANGED_SKILLS=$(git diff --cached --name-only | grep -v "^resume-tailor/references/candidate-context" | grep -E "^[^/]+/")
+CHANGED_DOCS=$(git diff --cached --name-only | grep -E "^(README\.md|CLAUDE\.md)$")
+
+if [ -n "$CHANGED_SKILLS" ] && [ -z "$CHANGED_DOCS" ]; then
+  echo ""
+  echo "  pre-commit: skill files changed without a documentation update."
+  echo ""
+  echo "  Changed skill files:"
+  echo "$CHANGED_SKILLS" | sed 's/^/    /'
+  echo ""
+  echo "  Please update README.md or CLAUDE.md to reflect these changes,"
+  echo "  then re-stage and commit."
+  echo ""
+  exit 1
+fi
+
+# Ensure no personal information patterns sneak through
+PII_PATTERNS='[0-9]{3}-[0-9]{3}-[0-9]{4}|\b[A-Z][a-z]+ [A-Z][a-z]+@|\bSSN\b'
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(md|js|json|txt)$")
+
+if [ -n "$STAGED_FILES" ]; then
+  while IFS= read -r file; do
+    if git show ":$file" | grep -qP "$PII_PATTERNS" 2>/dev/null; then
+      echo ""
+      echo "  pre-commit: possible personal information detected in: $file"
+      echo "  Review the file and ensure no PII is being committed."
+      echo ""
+      exit 1
+    fi
+  done <<< "$STAGED_FILES"
+fi
+
+exit 0

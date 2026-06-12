@@ -1,0 +1,19 @@
+# Personal context files — filled in locally, never committed
+**/candidate-context.md
+**/baseline_resume.js
+
+# Generated resume outputs
+**/*.pdf
+**/*.docx
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log
+
+# Editor artifacts
+.vscode/
+*.swp
+*.swo
